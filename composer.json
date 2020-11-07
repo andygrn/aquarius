@@ -1,0 +1,25 @@
+{
+    "name": "andygrn/aquarius",
+    "type": "library",
+    "description": "An application framework for Gemini capsules",
+    "keywords": ["gemini","server","cgi","mvc"],
+    "homepage": "https://github.com/andygrn/aquarius",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andy Green",
+            "email": "hello@andygrn.co.uk",
+            "homepage": "gemini://andygrn.co.uk"
+        }
+    ],
+    "require": {
+        "php": ">=7.3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.54",
+        "phpstan/phpstan-strict-rules": "^0.12.5"
+    },
+    "autoload": {
+        "files": ["aquarius.php"]
+    }
+}

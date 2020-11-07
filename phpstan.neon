@@ -1,0 +1,6 @@
+parameters:
+	level: max
+	paths:
+		- aquarius.php
+includes:
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
