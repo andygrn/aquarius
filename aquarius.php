@@ -12,11 +12,11 @@ namespace aquarius;
 class Request
 {
     /** @var string */
-    private $path;
+    protected $path;
     /** @var string */
-    private $query;
+    protected $query;
     /** @var string */
-    private $remote_user;
+    protected $remote_user;
 
     public function __construct()
     {
@@ -84,11 +84,11 @@ class Response
     const STATUS_CERTIFICATE_NOT_VALID = 62;
 
     /** @var int */
-    private $status;
+    protected $status;
     /** @var string */
-    private $meta;
+    protected $meta;
     /** @var string */
-    private $body;
+    protected $body;
 
     public function __construct(
         int $status = self::STATUS_SUCCESS,
@@ -133,11 +133,11 @@ class Response
 class Handler
 {
     /** @var string */
-    private $path_regex;
+    protected $path_regex;
     /** @var array<mixed> */
-    private $parameters = [];
+    protected $parameters = [];
     /** @var array<callable> */
-    private $stack = [];
+    protected $stack = [];
 
     public function __construct(string $path_regex, callable $callable)
     {
@@ -198,7 +198,7 @@ class Handler
 class App
 {
     /** @var array<Handler> */
-    private $handlers = [];
+    protected $handlers = [];
 
     public function addHandler(string $path_regex, callable $callable): Handler
     {
