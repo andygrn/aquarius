@@ -226,7 +226,8 @@ class App
                 }
             }
         } catch (\Exception $e) {
-            $response = new Response(40, $e->getMessage());
+            error_log($e->getMessage());
+            $response = new Response(40, 'Server error');
         }
         if (null === $response) {
             $response = new Response(51, '-');
