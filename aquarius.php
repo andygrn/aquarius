@@ -4,7 +4,9 @@ namespace aquarius;
 
 /*
  * aquarius
- * An application framework for Gemini capsules
+ * An application framework for Gemini capsules.
+ *
+ * Andy Green hello@andygrn.co.uk
  */
 
 class Request
@@ -13,8 +15,6 @@ class Request
     private $path;
     /** @var string */
     private $query;
-    /** @var string */
-    private $input;
     /** @var string */
     private $remote_user;
 
@@ -36,21 +36,26 @@ class Request
         }
     }
 
+    /**
+     * Get the current PATH_INFO, normalised with leading slash and without
+     * trailing slash.
+     */
     public function getPath(): string
     {
         return $this->path;
     }
 
+    /**
+     * Get the current QUERY_STRING, URL-decoded (using rawurldecode()).
+     */
     public function getQuery(): string
     {
         return $this->query;
     }
 
-    public function getInput(): string
-    {
-        return $this->input;
-    }
-
+    /**
+     * Get the current REMOTE_USER (probably a client certificate Common Name).
+     */
     public function getRemoteUser(): string
     {
         return $this->remote_user;
@@ -59,24 +64,24 @@ class Request
 
 class Response
 {
-    const INPUT = 10;
-    const SENSITIVE_INPUT = 11;
-    const SUCCESS = 20;
-    const REDIRECT_TEMPORARY = 30;
-    const REDIRECT_PERMANENT = 31;
-    const TEMPORARY_FAILURE = 40;
-    const SERVER_UNAVAILABLE = 41;
-    const CGI_ERROR = 42;
-    const PROXY_ERROR = 43;
-    const SLOW_DOWN = 44;
-    const PERMANENT_FAILURE = 50;
-    const NOT_FOUND = 51;
-    const GONE = 52;
-    const PROXY_REQUEST_REFUSED = 53;
-    const BAD_REQUEST = 59;
-    const CLIENT_CERTIFICATE_REQUIRED = 60;
-    const CERTIFICATE_NOT_AUTHORISED = 61;
-    const CERTIFICATE_NOT_VALID = 62;
+    const STATUS_INPUT = 10;
+    const STATUS_SENSITIVE_INPUT = 11;
+    const STATUS_SUCCESS = 20;
+    const STATUS_REDIRECT_TEMPORARY = 30;
+    const STATUS_REDIRECT_PERMANENT = 31;
+    const STATUS_TEMPORARY_FAILURE = 40;
+    const STATUS_SERVER_UNAVAILABLE = 41;
+    const STATUS_CGI_ERROR = 42;
+    const STATUS_PROXY_ERROR = 43;
+    const STATUS_SLOW_DOWN = 44;
+    const STATUS_PERMANENT_FAILURE = 50;
+    const STATUS_NOT_FOUND = 51;
+    const STATUS_GONE = 52;
+    const STATUS_PROXY_REQUEST_REFUSED = 53;
+    const STATUS_BAD_REQUEST = 59;
+    const STATUS_CLIENT_CERTIFICATE_REQUIRED = 60;
+    const STATUS_CERTIFICATE_NOT_AUTHORISED = 61;
+    const STATUS_CERTIFICATE_NOT_VALID = 62;
 
     /** @var int */
     private $status;
@@ -86,7 +91,7 @@ class Response
     private $body;
 
     public function __construct(
-        int $status = self::SUCCESS,
+        int $status = self::STATUS_SUCCESS,
         string $meta = 'text/gemini',
         string $body = ''
     ) {
@@ -95,6 +100,9 @@ class Response
         $this->body = $body;
     }
 
+    /**
+     * Default ($status, $meta) is (Response::STATUS_SUCCESS, 'text/gemini').
+     */
     public function setHeader(int $status, string $meta): void
     {
         $this->status = $status;
@@ -125,32 +133,50 @@ class Response
 class Handler
 {
     /** @var string */
-    private $regex;
+    private $path_regex;
     /** @var array<mixed> */
     private $parameters = [];
     /** @var array<callable> */
     private $stack = [];
 
-    public function __construct(string $regex, callable $callable)
+    public function __construct(string $path_regex, callable $callable)
     {
-        $regex = '/'.trim($regex, '/');
-        $this->regex = '/^'.str_replace('/', '\/', $regex).'$/';
+        $path_regex = '/'.trim($path_regex, '/');
+        $this->path_regex = '/^'.str_replace('/', '\/', $path_regex).'$/';
         $this->stack[] = $callable;
     }
 
     public function __invoke(Request $request): ?Response
     {
-        if (1 !== preg_match($this->regex, $request->getPath(), $matches)) {
+        if (1 !== preg_match($this->path_regex, $request->getPath(), $matches)) {
             return null;
         }
         $this->parameters = array_slice($matches, 1);
 
         return call_user_func_array(
             [$this, 'next'],
-            [$this, $request, new Response()]
+            [$request, new Response()]
         );
     }
 
+    /**
+     * Call the next function in this handler's stack.
+     */
+    public function next(Request $request, Response $response): Response
+    {
+        $callable = array_pop($this->stack);
+        if (null === $callable) {
+            return $response;
+        }
+        $callable = \Closure::fromCallable($callable)->bindTo($this);
+
+        return $callable($request, $response);
+    }
+
+    /**
+     * Add a function to this handler's stack. The last one added will be the
+     * first called.
+     */
     public function butFirst(callable $callable): self
     {
         $this->stack[] = $callable;
@@ -158,21 +184,12 @@ class Handler
         return $this;
     }
 
-    public function next(
-        self $handler,
-        Request $request,
-        Response $response
-    ): Response {
-        $callable = array_pop($this->stack);
-        if (null === $callable) {
-            return $response;
-        }
-
-        return $callable($handler, $request, $response);
-    }
-
-    /** @return array<mixed> */
-    public function getRouteParameters(): array
+    /**
+     * Get the path parameters captured from this handler's regex pattern.
+     *
+     * @return array<mixed>
+     */
+    public function getPathParameters(): array
     {
         return $this->parameters;
     }
@@ -183,9 +200,9 @@ class App
     /** @var array<Handler> */
     private $handlers = [];
 
-    public function addHandler(string $regex, callable $callable): Handler
+    public function addHandler(string $path_regex, callable $callable): Handler
     {
-        $handler = new Handler($regex, $callable);
+        $handler = new Handler($path_regex, $callable);
         $this->handlers[] = $handler;
 
         return $handler;
@@ -212,7 +229,7 @@ class App
             $response = new Response(40, $e->getMessage());
         }
         if (null === $response) {
-            $response = new Response(51, 'Not found');
+            $response = new Response(51, '-');
         }
 
         $handler_output = ob_get_clean();
