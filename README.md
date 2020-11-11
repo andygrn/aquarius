@@ -14,6 +14,13 @@ before.
 See it in action at **gemini://andygrn.co.uk/apps/aquarius**
 
 
+## Installation
+
+Via Composer: `composer require andygrn/aquarius`
+
+Or download the file and `require 'aquarius.php';`.
+
+
 ## Apps and Handlers
 
 A single aquarius **App** has one or more **Handlers**.
