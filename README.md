@@ -11,6 +11,8 @@ A PHP application framework for Gemini capsules, including:
 It should be reasonably familiar to anyone who's used a PHP web framework
 before.
 
+See it in action at **gemini://andygrn.co.uk/apps/aquarius**
+
 
 ## Apps and Handlers
 
