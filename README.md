@@ -70,7 +70,7 @@ $app->addHandler('/', function ($request, $response) {
     if ('' === $remote_user) {
         $remote_user = 'stranger';
     }
-	$response->appendBody("Hello, $remote_user.\n\n");
+    $response->appendBody("Hello, $remote_user.\n\n");
 
     if (PHP_SESSION_ACTIVE === session_status()) {
         if (!isset($_SESSION['visit_count'])) {
