@@ -235,7 +235,7 @@ class App
             $response = new Response(40, 'Server error');
         }
         if (null === $response) {
-            $response = new Response(51, '-');
+            $response = new Response(51, 'Not found');
         }
 
         $handler_output = ob_get_clean();
