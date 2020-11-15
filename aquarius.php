@@ -140,7 +140,7 @@ class Handler
     /** @var string */
     protected $path_regex;
     /** @var array<mixed> */
-    protected $parameters = [];
+    protected $path_parameters = [];
     /** @var array<callable> */
     protected $stack = [];
 
@@ -156,7 +156,7 @@ class Handler
         if (1 !== preg_match($this->path_regex, $request->getPath(), $matches)) {
             return null;
         }
-        $this->parameters = array_slice($matches, 1);
+        $this->path_parameters = array_slice($matches, 1);
 
         return call_user_func_array(
             [$this, 'next'],
@@ -196,7 +196,7 @@ class Handler
      */
     public function getPathParameters(): array
     {
-        return $this->parameters;
+        return $this->path_parameters;
     }
 }
 
