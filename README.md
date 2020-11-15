@@ -20,6 +20,8 @@ Via Composer: `composer require andygrn/aquarius`
 
 Or download the file and `require 'aquarius.php';`.
 
+Requires PHP 7.3 or above.
+
 
 ## Apps and Handlers
 
