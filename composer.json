@@ -9,7 +9,7 @@
         {
             "name": "Andy Green",
             "email": "hello@andygrn.co.uk",
-            "homepage": "gemini://andygrn.co.uk"
+            "homepage": "https://andygrn.co.uk"
         }
     ],
     "require": {
