@@ -109,9 +109,14 @@ class Response
         $this->meta = $meta;
     }
 
-    public function getHeader(): string
+    public function getStatus(): int
     {
-        return "{$this->status} {$this->meta}\r\n";
+        return $this->status;
+    }
+
+    public function getMeta(): string
+    {
+        return $this->meta;
     }
 
     public function setBody(string $body): void
@@ -239,7 +244,7 @@ class App
         }
 
         ob_start();
-        echo $response->getHeader();
+        echo "{$response->getStatus()} {$response->getMeta()}\r\n";
         echo $response->getBody();
         ob_end_flush();
     }
