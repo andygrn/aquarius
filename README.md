@@ -53,8 +53,60 @@ To enable the client certificate session behaviour, aquarius also requires
 
 ## API
 
-The API is so minimal it's best explained through examples, but `aquarius.php`
-isn't very long, and it has some explanatory comments, if you're curious.
+### Request
+
+`Request::getPath(): string`
+Get the current PATH_INFO, normalised with leading slash and without trailing
+slash.
+
+`Request::getQuery(): string`
+Get the current QUERY_STRING, URL-decoded (using `rawurldecode()`).
+
+`Request::getRemoteUser(): string`
+Get the current REMOTE_USER (probably a client certificate Common Name).
+
+### Response
+
+`Response::setHeader(int $status, string $meta): void`
+Set the header line of the response. Default response `($status, $meta)` is
+`(Response::STATUS_SUCCESS, 'text/gemini')`, so you may not need to call this.
+
+`Response::getStatus(): int`
+Get the response status code.
+
+`Response::getMeta(): string`
+Get the response meta string.
+
+`Response::setBody(string $body): void`
+Set the entire response body.
+
+`Response::appendBody(string $body): void`
+Append to the response body.
+
+`Response::getBody(): string`
+Get the response body.
+
+### Handler
+
+`Handler::next(Request $request, Response $response): Response`
+Call the next function in this handler's stack.
+
+`Handler::butFirst(callable $callable): self`
+Add a function to this handler's stack. The last one added will be the first
+called. Returns itself so calls can be chained.
+
+`Handler::getPathParameters(): array<mixed>`
+Get the path parameters captured from this handler's regex pattern.
+
+### App
+
+`App::addHandler(string $path_regex, callable $callable): Handler`
+Create a new Handler to run on `$path_regex`, with `$callable` as the first
+function in its stack.
+
+`App::run(): void`
+Resolve the current path to a handler and run it (or serve 51 response if no
+handler matches).
 
 
 ## Example apps
