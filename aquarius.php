@@ -232,10 +232,16 @@ class App
             }
         } catch (\Exception $e) {
             error_log($e->getMessage());
-            $response = new Response(40, 'Server error');
+            $response = new Response(
+                Response::STATUS_TEMPORARY_FAILURE,
+                'Server error'
+            );
         }
         if (null === $response) {
-            $response = new Response(51, 'Not found');
+            $response = new Response(
+                Response::STATUS_NOT_FOUND,
+                'Not found'
+            );
         }
 
         $handler_output = ob_get_clean();
